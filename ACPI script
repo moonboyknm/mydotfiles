@@ -1,0 +1,125 @@
+Creating a Custom Script to change power modes, toggle battery conservation mode and rapid charge on or off 
+
+### Step 1: Create the Script
+
+1. Open a text editor and create a new file, for example, `lenovo_modes.sh`.
+2. Add the following content to the file:
+
+```sh
+#!/bin/bash
+
+# Ensure the acpi_call module is loaded
+sudo modprobe acpi_call
+
+# Function to set performance mode
+set_performance_mode() {
+    local mode=$1
+    case $mode in
+        1)
+            echo "Setting Performance Mode 1"
+            echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x01' | sudo tee /proc/acpi/call
+            ;;
+        2)
+            echo "Setting Performance Mode 2"
+            echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x02' | sudo tee /proc/acpi/call
+            ;;
+        3)
+            echo "Setting Performance Mode 3"
+            echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x03' | sudo tee /proc/acpi/call
+            ;;
+        *)
+            echo "Invalid performance mode"
+            ;;
+    esac
+}
+
+# Function to toggle battery conservation mode
+toggle_battery_conservation() {
+    echo "Toggling Battery Conservation Mode"
+    echo '\_SB.PCI0.LPC0.EC0.QCHO' | sudo tee /proc/acpi/call
+}
+
+# Function to toggle rapid charge mode
+toggle_rapid_charge() {
+    echo "Toggling Rapid Charge Mode"
+    echo '\_SB.PCI0.LPC0.EC0.VPC0.SBMC 0x05' | sudo tee /proc/acpi/call
+}
+
+# Main script logic
+case $1 in
+    perf1)
+        set_performance_mode 1
+        ;;
+    perf2)
+        set_performance_mode 2
+        ;;
+    perf3)
+        set_performance_mode 3
+        ;;
+    battery)
+        toggle_battery_conservation
+        ;;
+    rapid)
+        toggle_rapid_charge
+        ;;
+    *)
+        echo "Usage: $0 {perf1|perf2|perf3|battery|rapid}"
+        ;;
+esac
+```
+
+3. Save the file and make it executable:
+   ```sh
+   chmod +x lenovo_modes.sh
+   ```
+
+### Step 2: Create Aliases
+
+1. Open your shell configuration file (e.g., `~/.bashrc` or `~/.zshrc`) in a text editor.
+2. Add the following aliases to the file:
+
+```sh
+alias perf1='sudo /path/to/lenovo_modes.sh perf1'
+alias perf2='sudo /path/to/lenovo_modes.sh perf2'
+alias perf3='sudo /path/to/lenovo_modes.sh perf3'
+alias battery='sudo /path/to/lenovo_modes.sh battery'
+alias rapid='sudo /path/to/lenovo_modes.sh rapid'
+```
+
+Replace `/path/to/lenovo_modes.sh` with the actual path to your script.
+
+3. Save the file and reload the shell configuration:
+   ```sh
+   source ~/.bashrc  # or source ~/.zshrc
+   ```
+
+### Step 3: Use the Aliases
+
+Now you can easily toggle the performance modes and battery features using the aliases:
+
+- To set Performance Mode 1:
+  ```sh
+  perf1
+  ```
+
+- To set Performance Mode 2:
+  ```sh
+  perf2
+  ```
+
+- To set Performance Mode 3:
+  ```sh
+  perf3
+  ```
+
+- To toggle Battery Conservation Mode:
+  ```sh
+  battery
+  ```
+
+- To toggle Rapid Charge Mode:
+  ```sh
+  rapid
+  ```
+
+This setup should make it much easier to toggle the features on your Lenovo IdeaPad laptop.
